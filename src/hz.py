@@ -81,7 +81,7 @@ class HzVerb(VerbExtension):
             help='window size, in # of messages, for calculating rate '
                  '(default: %d)' % DEFAULT_WINDOW_SIZE, metavar='WINDOW')
         parser.add_argument(
-            '--filter',
+            '--filter_expr',
             dest='filter_expr', default=None,
             help='only measure messages matching the specified Python expression', metavar='EXPR')
         parser.add_argument(
