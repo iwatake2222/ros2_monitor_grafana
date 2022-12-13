@@ -14,12 +14,30 @@
 """
 main
 """
-
 import argparse
 import subprocess
 
+import hz
 
-def make_topic_list(topic_list_file: str):
+
+def update_hz_cb(hz_dict: dict[str, float]):
+    for topic, hz in hz_dict.items():
+        print(f'{topic}: {hz: .03f} [Hz]')
+
+
+def subscribe_topic_hz(topic_list: list[str]):
+    """Subscribe Topic hz"""
+    hz_verb = hz.HzVerb()
+    parser = argparse.ArgumentParser()
+    hz_verb.add_arguments(parser, "ros2_monitor_grafana")
+    args = parser.parse_args()
+    args.topic_list = topic_list
+    args.window_size = 10   # do not calculate average for a long term
+    hz.main(args, update_hz_cb)
+    # not reached here
+
+
+def make_topic_list(topic_list_file: str) -> list[str]:
     """Make topic list from either file or ros2cli"""
     topic_list = []
     if topic_list_file is not None:
@@ -46,8 +64,8 @@ def main():
     """Main function"""
     args = parse_args()
     topic_list = make_topic_list(args.topic_list_file)
-    print(topic_list)
-s
+    subscribe_topic_hz(topic_list)
+
 
 if __name__ == '__main__':
     main()

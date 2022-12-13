@@ -29,6 +29,10 @@
 # This file is originally from:
 # https://github.com/ros/ros_comm/blob/6e5016f4b2266d8a60c9a1e163c4928b8fc7115e/tools/rostopic/src/rostopic/__init__.py
 
+# 2022/12/14, This file is originally from:
+# https://raw.githubusercontent.com/ros2/ros2cli/humble/ros2topic/ros2topic/verb/hz.py
+
+# 2022/12/14, This file is modified by iwatake222
 from argparse import ArgumentTypeError
 from collections import defaultdict
 
@@ -37,6 +41,8 @@ import math
 import threading
 
 import rclpy
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 
 from rclpy.clock import Clock
 from rclpy.clock import ClockType
@@ -65,7 +71,7 @@ class HzVerb(VerbExtension):
 
     def add_arguments(self, parser, cli_name):
         arg = parser.add_argument(
-            'topic_name',
+            '--topic_list',
             help="Name of the ROS topic to listen to (e.g. '/chatter')")
         arg.completer = TopicNameCompleter(
             include_hidden_topics_key='include_hidden_topics')
@@ -89,8 +95,8 @@ class HzVerb(VerbExtension):
         return main(args)
 
 
-def main(args):
-    topic = args.topic_name
+def main(args, update_cb=None):
+    topic_list = args.topic_list
     if args.filter_expr:
         def expr_eval(expr):
             def eval_fn(m):
@@ -101,7 +107,7 @@ def main(args):
         filter_expr = None
 
     with DirectNode(args) as node:
-        _rostopic_hz(node.node, topic, window_size=args.window_size, filter_expr=filter_expr,
+        _rostopic_hz(update_cb, node.node, topic_list, window_size=args.window_size, filter_expr=filter_expr,
                      use_wtime=args.use_wtime)
 
 
@@ -246,7 +252,7 @@ class ROSTopicHz(object):
         return
 
 
-def _rostopic_hz(node, topic, window_size=DEFAULT_WINDOW_SIZE, filter_expr=None, use_wtime=False):
+def _rostopic_hz(update_cb, node, topic_list, window_size=DEFAULT_WINDOW_SIZE, filter_expr=None, use_wtime=False):
     """
     Periodically print the publishing rate of a topic to console until shutdown.
 
@@ -254,24 +260,32 @@ def _rostopic_hz(node, topic, window_size=DEFAULT_WINDOW_SIZE, filter_expr=None,
     :param window_size: number of messages to average over, -1 for infinite, ``int``
     :param filter_expr: Python filter expression that is called with m, the message instance
     """
-    # pause hz until topic is published
-    msg_class = get_msg_class(
-        node, topic, blocking=True, include_hidden_topics=True)
-
-    if msg_class is None:
-        node.destroy_node()
-        return
-
     rt = ROSTopicHz(node, window_size, filter_expr=filter_expr, use_wtime=use_wtime)
-    node.create_subscription(
-        msg_class,
-        topic,
-        functools.partial(rt.callback_hz, topic=topic),
-        qos_profile_sensor_data)
+
+    for topic in topic_list:
+        # pause hz until topic is published
+        msg_class = get_msg_class(
+            node, topic, blocking=False, include_hidden_topics=False)
+
+        if msg_class is None:
+            print(f'{topic} is invalid')
+            continue
+
+        node.create_subscription(
+            msg_class,
+            topic,
+            functools.partial(rt.callback_hz, topic=topic),
+            qos_profile_sensor_data, callback_group=MutuallyExclusiveCallbackGroup())
 
     while rclpy.ok():
-        rclpy.spin_once(node)
-        rt.print_hz(topic)
+        rclpy.spin_once(node, executor=MultiThreadedExecutor())
+        hz_dict = {}
+        for topic in topic_list:
+            get_hz = rt.get_hz(topic)
+            if get_hz is not None:
+                hz_dict[topic] = get_hz[0] * 1e9
+        if update_cb is not None:
+            update_cb(hz_dict)
 
     node.destroy_node()
     rclpy.shutdown()
