@@ -59,8 +59,8 @@ def update_hz_cb(hz_dict: dict[str, float]):
 def subscribe_topic_hz(topic_list: list[str]):
     hz_verb = hz.HzVerb()
     parser = argparse.ArgumentParser()
-    hz_verb.add_arguments(parser, "ros2_monitor_grafana")
-    args = parser.parse_args()
+    hz_verb.add_arguments(parser, 'ros2_monitor_grafana')
+    args = parser.parse_args('')
     args.topic_list = topic_list
     args.window_size = 10   # do not calculate average for a long term
     hz.main(args, update_hz_cb)
