@@ -1,0 +1,333 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 5,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 46,
+      "panels": [],
+      "repeat": "topic_name",
+      "repeatDirection": "h",
+      "title": "${topic_name}",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-RdYlGr"
+          },
+          "displayName": "[Hz]",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 42,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "9.1.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb"
+          },
+          "query": "from(bucket: \"my-bucket\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  |> last()\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "${topic_name}",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 4,
+        "y": 1
+      },
+      "id": 44,
+      "options": {
+        "bucketOffset": 0,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb"
+          },
+          "query": "from(bucket: \"my-bucket\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  ",
+          "refId": "A"
+        }
+      ],
+      "title": "${topic_name}",
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "influxdb"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Hz"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 15,
+        "x": 9,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb"
+          },
+          "query": "from(bucket: \"my-bucket\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  ",
+          "refId": "A"
+        }
+      ],
+      "title": "${topic_name}",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "my-bucket",
+          "value": "my-bucket"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": null
+        },
+        "definition": "buckets()\r\n  |> drop(columns: [\"_monitoring\", \"_tasks\"])",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "bucket_name",
+        "options": [],
+        "query": "buckets()\r\n  |> drop(columns: [\"_monitoring\", \"_tasks\"])",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": null
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(\r\n  bucket: \"${bucket_name}\",\r\n  tag: \"topic_name\",\r\n  start: 0,\r\n  stop: 1d,\r\n)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "topic_name",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(\r\n  bucket: \"${bucket_name}\",\r\n  tag: \"topic_name\",\r\n  start: 0,\r\n  stop: 1d,\r\n)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now+9h-10m",
+    "to": "now+9h"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Topic Monitor",
+  "uid": "iB7BZKcVx2",
+  "version": 3,
+  "weekStart": ""
+}

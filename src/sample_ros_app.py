@@ -32,7 +32,7 @@ class MinimalPublisher(Node):
         msg = String()
         if random.randint(0, 50) == 0:
             self.get_logger().info('Delay occur!!')
-            time.sleep(self.timer.timer_period_ns / 1e9 * random.random() * 10)
+            time.sleep(self.timer.timer_period_ns / 1e9 * random.random() * 5)
 
         msg.data = 'Hello World: %d' % self.i
         self.publisher_.publish(msg)
@@ -61,7 +61,7 @@ def main(args=None):
     exec = MultiThreadedExecutor()
 
     node_list: list[Node] = []
-    for i in range(50, 1001, 50):
+    for i in [10, 50, 100, 500]:
         interval_sec = i / 1000
         minimal_publisher = MinimalPublisher(f'topic_{i}_ms', interval_sec)
         minimal_subscriber = MinimalSubscriber(f'topic_{i}_ms')
