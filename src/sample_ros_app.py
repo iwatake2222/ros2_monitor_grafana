@@ -32,7 +32,7 @@ class MinimalPublisher(Node):
         msg = String()
         if random.randint(0, 50) == 0:
             self.get_logger().info('Delay occur!!')
-            time.sleep(self.timer.timer_period_ns / 1e9 * random.random() * 5)
+            time.sleep(self.timer.timer_period_ns / 1e9 * random.random())
 
         msg.data = 'Hello World: %d' % self.i
         self.publisher_.publish(msg)

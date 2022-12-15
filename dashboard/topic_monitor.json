@@ -321,8 +321,8 @@
     ]
   },
   "time": {
-    "from": "now+9h-10m",
-    "to": "now+9h"
+    "from": "now-10m",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",

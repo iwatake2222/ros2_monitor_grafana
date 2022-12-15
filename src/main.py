@@ -14,6 +14,8 @@
 import argparse
 import subprocess
 from datetime import datetime
+import re
+import threading
 import influxdb_client
 
 import hz
@@ -50,47 +52,56 @@ db: InfluxDbAccessor = None
 
 
 def update_hz_cb(hz_dict: dict[str, float]):
-    measurement_datetime = datetime.now()
-    for topic, hz in hz_dict.items():
-        # print(f'{topic}: {hz: .03f} [Hz]')
-        db.write_point(measurement_datetime, topic, hz)
+    def run(hz_dict):
+        measurement_datetime = int(datetime.now().timestamp() * 1e9)
+        for topic, hz in hz_dict.items():
+            # print(f'{topic}: {hz: .03f} [Hz]')
+            db.write_point(measurement_datetime, topic, hz)
+    thread = threading.Thread(target=run, args=(hz_dict, ))
+    thread.start()
 
 
-def subscribe_topic_hz(topic_list: list[str]):
+def subscribe_topic_hz(topic_list: list[str], window_size: int):
     hz_verb = hz.HzVerb()
     parser = argparse.ArgumentParser()
     hz_verb.add_arguments(parser, 'ros2_monitor_grafana')
     args = parser.parse_args('')
     args.topic_list = topic_list
-    args.window_size = 10   # do not calculate average for a long term
+    args.window_size = window_size
     hz.main(args, update_hz_cb)
     # not reached here
 
 
-def make_topic_list(topic_list_file: str) -> list[str]:
+def make_topic_list(ignore_regexp: str, target_regexp: str) -> list[str]:
     topic_list = []
-    if topic_list_file is not None:
-        with open(topic_list_file, 'r') as f:
-            topic_list = f.read().splitlines()
-    else:
-        topic_list = subprocess.run(['ros2', 'topic', 'list'],
-                                    capture_output=True,
-                                    text=True)
-        topic_list = topic_list.stdout.splitlines()
-        topic_list.remove('/parameter_events')
-        topic_list.remove('/rosout')
+    topic_list = subprocess.run(['ros2', 'topic', 'list'],
+                                capture_output=True,
+                                text=True)
+    topic_list = topic_list.stdout.splitlines()
+    topic_list = [topic for topic in topic_list if \
+        re.search(target_regexp, topic) and not re.search(ignore_regexp, topic)]
+
+    len_topic_list = len(topic_list)
+    print(topic_list)
+    print(f'The number of monitored topics: {len_topic_list}')
+    if len_topic_list > 50:
+        print('Warning: too many topics are monitored. Result may not be accurate. '+
+        ' Please consider to use ignore_regexp and target_regexp option')
+
     return topic_list
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('topic_list_file', type=str, nargs='?', default=None)
-    parser.add_argument('--url', type=str, default='http://localhost:8086',
-                        help='InfluxDB URL')
+    parser.add_argument('--ignore_regexp', type=str, default='(parameter_events|rosout|debug|tf)')
+    parser.add_argument('--target_regexp', type=str, default='.*')
+    parser.add_argument('--window_size', type=int, default=10)
     parser.add_argument('--token', type=str, default='my-super-secret-auth-token',
                         help='InfluxDB Token')
     parser.add_argument('--org', type=str, default='my-org',
                         help='InfluxDB Organization')
+    parser.add_argument('--url', type=str, default='http://localhost:8086',
+                        help='InfluxDB URL')
     parser.add_argument('--bucket_name', type=str, default='my-bucket',
                         help='InfluxDB Bucket Name')
     args = parser.parse_args()
@@ -104,8 +115,8 @@ def main():
     db = InfluxDbAccessor(args.url, args.token, args.org, args.bucket_name)
     db.create_bucket()
 
-    topic_list = make_topic_list(args.topic_list_file)
-    subscribe_topic_hz(topic_list)
+    topic_list = make_topic_list(args.ignore_regexp, args.target_regexp)
+    subscribe_topic_hz(topic_list, args.window_size)
 
 
 if __name__ == '__main__':

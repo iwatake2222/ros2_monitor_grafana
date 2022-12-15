@@ -22,12 +22,13 @@ pip3 install influxdb_client
 
 ### 2. Prepare InfluxDB
 
-- Create your InfluxDB account
+- Create your [InfluxDB Cloud 2.0 account](https://www.influxdata.com/) (You can use your Google account)
+  - Find your token, org and url
 - Or, run a local Docker container as described below
 
 ### 3. Prepare Grafana
 
-- Create your Grafana account
+- Create your [Grafana account](https://grafana.com/) (You can use your Google account)
 - Or, run a local Docker container as described below
 
 ### 4. Run your ROS 2 application
@@ -38,27 +39,39 @@ pip3 install influxdb_client
 ### 5. Run ROS 2 Monitor with Grafana
 
 ```sh
-url=http://localhost:8086
+# For InfluxDB Cloud 2.0 (example)
+token=o3gajXfkeJ8PwOD9QJ5aO6R2WJkk9jn0PqUWak_5ECWrzoJ456WWSxLqibQUhN-89MH9TznPkflVGaMXnFlFxw==
+org=yourname@gmail.com
+url=https://us-east-1-1.aws.cloud2.influxdata.com
+bucket_name=my-bucket
+
+# For local docker container
 token=my-super-secret-auth-token
 org=my-org
+url=http://localhost:8086
 bucket_name=my-bucket
-python3 src/main.py --url=$url --token=$token --org=$org --bucket_name=$bucket_name
+
+python3 src/main.py --token=$token --org=$org --url=$url --bucket_name=$bucket_name
 ```
 
-- Please replace arguments such as url, token, etc. for your account
+- Please adjust arguments such as token, org, etc. for your account
 
 ### 6. Setup Grafana
 
 - Login to Grafana
+  - Cloud: https://yourname.grafana.net/
+  - Docker: http://localhost:3000  (admin, admin)
 - Configure datasource
   - `Configuration` -> `Data sources` -> `Add data source`
   - Select `InfluxDB`, and process the following settings, then click `Save & Test`
+    - Default: checked
     - Query Language: Flux
     - URL: http://localhost:8086
-    - User: my-user
-    - Password: my-password
-    - my-user: my-org
+    - (User: my-user)
+    - (Password: my-password)
+    - Organization: my-org
     - Token: my-super-secret-auth-token
+    - Default Bucket: my-bucket
     - (Please replace arguments such as url, token, etc. for your account)
 - Configure dashboards
   - `Dashboards` -> `Browse` -> `New` -> `Import`
@@ -76,7 +89,8 @@ mkdir ./influxdb
 mkdir ./influxdb/config
 mkdir ./influxdb/data
 
-docker run --rm -d -p 8086:8086 \
+docker run --rm -d \
+  --net host \
   -v $PWD/influxdb/data:/var/lib/influxdb2 \
   -v $PWD/influxdb/config:/etc/influxdb2 \
   -e DOCKER_INFLUXDB_INIT_MODE=setup \
@@ -108,17 +122,27 @@ from(bucket: "my-bucket")
 ```sh
 mkdir ./grafana
 
-docker run --name grafana \
+docker run --rm -d \
+  --net host \
   --user `id -u` \
   -v $PWD/grafana:/var/lib/grafana \
-  --net host \
-  -p 3000:3000 \
-  -d --rm grafana/grafana
+  grafana/grafana
 ```
 
 - Access http://localhost:3000/ to show your dashboards
   - Username: admin
   - Password: admin
+
+
+### ROS 2
+
+```sh
+docker run -it --rm \
+  --net host \
+  -v $PWD:/work \
+  -v /etc/localtime:/etc/localtime:ro \
+  osrf/ros:humble-desktop bash
+```
 
 ## Notice
 

@@ -46,7 +46,7 @@ from rclpy.executors import MultiThreadedExecutor
 
 from rclpy.clock import Clock
 from rclpy.clock import ClockType
-from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import qos_profile_sensor_data, QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from ros2cli.node.direct import add_arguments as add_direct_node_arguments
 from ros2cli.node.direct import DirectNode
 from ros2topic.api import get_msg_class
@@ -260,6 +260,13 @@ def _rostopic_hz(update_cb, node, topic_list, window_size=DEFAULT_WINDOW_SIZE, f
     :param window_size: number of messages to average over, -1 for infinite, ``int``
     :param filter_expr: Python filter expression that is called with m, the message instance
     """
+
+    qos_profile = QoSProfile(
+        reliability=QoSReliabilityPolicy.BEST_EFFORT,
+        history=QoSHistoryPolicy.KEEP_ALL,
+        depth=window_size,
+    )
+
     rt = ROSTopicHz(node, window_size, filter_expr=filter_expr, use_wtime=use_wtime)
 
     for topic in topic_list:
@@ -274,11 +281,10 @@ def _rostopic_hz(update_cb, node, topic_list, window_size=DEFAULT_WINDOW_SIZE, f
         node.create_subscription(
             msg_class,
             topic,
-            functools.partial(rt.callback_hz, topic=topic),
-            qos_profile_sensor_data, callback_group=MutuallyExclusiveCallbackGroup())
+            functools.partial(rt.callback_hz, topic=topic), qos_profile)
 
     while rclpy.ok():
-        rclpy.spin_once(node, executor=MultiThreadedExecutor())
+        rclpy.spin_once(node)
         hz_dict = {}
         for topic in topic_list:
             get_hz = rt.get_hz(topic)
