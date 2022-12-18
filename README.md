@@ -7,6 +7,7 @@
 - Monitor ROS 2 topic rate
 - Store topic rate into InfluxDB
 - Display dashboard in Grafana for the created database
+- Sample: https://snapshots.raintank.io/dashboard/snapshot/wAcs2K0k7w2R03w9T3BYUsSB5qqVcdSq
 
 ![overview](./docs/overview.png)
 
@@ -23,7 +24,7 @@ pip3 install influxdb_client
 ### 2. Prepare InfluxDB
 
 - Create your [InfluxDB Cloud 2.0 account](https://www.influxdata.com/) (You can use your Google account)
-  - Find your token, org and url
+  - Find your URL (Host Name) and Organization ID in Organization -> Settings, and generate a new Token in API Tokens
 - Or, run a local Docker container as described below
 
 ### 3. Prepare Grafana
@@ -39,18 +40,19 @@ pip3 install influxdb_client
 ### 5. Run ROS 2 Monitor with Grafana
 
 ```sh
-# For InfluxDB Cloud 2.0 (example)
+# Parameters for InfluxDB Cloud 2.0 (example)
 token=o3gajXfkeJ8PwOD9QJ5aO6R2WJkk9jn0PqUWak_5ECWrzoJ456WWSxLqibQUhN-89MH9TznPkflVGaMXnFlFxw==
 org=yourname@gmail.com
 url=https://us-east-1-1.aws.cloud2.influxdata.com
 bucket_name=my-bucket
 
-# For local docker container
+# Parameters for local docker container
 token=my-super-secret-auth-token
 org=my-org
 url=http://localhost:8086
 bucket_name=my-bucket
 
+# Start monitoring ROS 2 topics and uploading data
 python3 src/main.py --token=$token --org=$org --url=$url --bucket_name=$bucket_name
 ```
 
