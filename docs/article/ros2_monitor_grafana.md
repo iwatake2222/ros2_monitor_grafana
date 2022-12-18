@@ -11,7 +11,7 @@ GrafanaでROS2トピック監視用ダッシュボードを作る
     - 下図のように各トピックの周期を、リアルタイムの最新値 / ヒストグラム / 時系列で表示します
     - ダッシュボード表示にはGrafanaを使います。ローカルでGrafana環境を用意することもできますが、Grafana Cloudを使うことで、他メンバーにシェアすることも出来ます
 - 実際のダッシュボード (snapshot) はこちらから表示することができます
-    - https://snapshots.raintank.io/dashboard/snapshot/wAcs2K0k7w2R03w9T3BYUsSB5qqVcdSq
+    - https://snapshots.raintank.io/dashboard/snapshot/08Z24lXibuOv2dMBActgL1BOKarvK5Ct
 
 ![a](screenshot.jpg)
 
