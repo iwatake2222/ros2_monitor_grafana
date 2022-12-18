@@ -9,7 +9,7 @@
 - Display dashboard in Grafana for the created database
 - Sample: https://snapshots.raintank.io/dashboard/snapshot/wAcs2K0k7w2R03w9T3BYUsSB5qqVcdSq
 
-![overview](./docs/overview.png)
+![overview](./docs/article/overview.jpg)
 
 ## How to use
 
