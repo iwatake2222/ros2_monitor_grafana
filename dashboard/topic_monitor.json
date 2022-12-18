@@ -99,7 +99,7 @@
           "datasource": {
             "type": "influxdb"
           },
-          "query": "from(bucket: \"my-bucket\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  |> last()\r\n",
+          "query": "from(bucket: \"${bucket_name}\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  |> last()\r\n",
           "refId": "A"
         }
       ],
@@ -164,7 +164,7 @@
           "datasource": {
             "type": "influxdb"
           },
-          "query": "from(bucket: \"my-bucket\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  ",
+          "query": "from(bucket: \"${bucket_name}\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  ",
           "refId": "A"
         }
       ],
@@ -254,7 +254,7 @@
           "datasource": {
             "type": "influxdb"
           },
-          "query": "from(bucket: \"my-bucket\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  ",
+          "query": "from(bucket: \"${bucket_name}\")\r\n  |> range(start: 0, stop: 1d)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ros2_topic\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"topic_rate_hz\")\r\n  |> filter(fn: (r) => r[\"topic_name\"] == \"${topic_name}\")\r\n  ",
           "refId": "A"
         }
       ],
@@ -328,6 +328,6 @@
   "timezone": "",
   "title": "Topic Monitor",
   "uid": "iB7BZKcVx2",
-  "version": 3,
+  "version": 1,
   "weekStart": ""
 }
